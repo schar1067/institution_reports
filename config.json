@@ -1,0 +1,13 @@
+{
+    "COLOR_PALETTE":["#440154","#482677","#404788","#33638d","#287d8e","#1f968b","#29af7f","#55c667",
+                     "#73d055","#b8de29","#fde725"],
+    "LINE_IMG_NAME":"temp/line.png",
+    "BAR_IMG_NAME":"temp/bar.png",
+    "HEAT_IMG_NAME":"temp/heat.png",
+    "LOGO":"resources/logo.png",
+    "IES":["areandina","unisinu","unitolima","sena","cuc","ufps","unitropico",
+          "uniguajira","luisamigo","juanncorpas","unicolmayor","itm","ibero","unimilitar",
+          "usantotomas","uninorte","uis","uniminuto","espol","corposucre","ibero","uniremington"],
+    "PROXY_IES":["juanncorpas","luisamigo","uniguajira","espol","uniremington","corposucre"],
+    "REPORTS_DIR":"reportes"
+}
