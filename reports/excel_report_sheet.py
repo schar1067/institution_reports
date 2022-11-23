@@ -1,10 +1,13 @@
 import os
+from anyio import connect_tcp
 import pandas as pd
 from config import read_config
 from fields_schema import Schema
+from kwargs_schema import Kwargs
+from nlp import collection_of_search_terms_str
 from processing_functions import get_key_teachers, tweak_profile
 from excel_manipulation import excel_write
-from charts import save_bar_plot, save_line_plot
+from charts import save_bar_plot, save_line_plot, save_world_cloud
 from excel_manipulation import insert_img, remove_gridlines
 from excel_manipulation import excel_append
 
@@ -14,21 +17,22 @@ BASE_DIR=dir_path = os.getcwd()
 IMG_NAME= config.LINE_IMG_NAME
 BAR_IMG_NAME= config.BAR_IMG_NAME
 HEAT_IMG_NAME=config.HEAT_IMG_NAME
+WC_IMG_NAME=config.WC_IMG_NAME
 LOGO=config.LOGO
 REPORTS_DIR= config.REPORTS_DIR
 
 
-
-    
 def create_report_sheet(source_data:pd.DataFrame,
                         ies:str,
                         processing_function:callable,
+                        agg_kwargs:Kwargs,
                         fact:str,
                         sheet_name:str,
                         worksheet_idx:int,
                         agg_value:Schema,
                         new_workbook:bool=True,
-                        has_type:bool=False)->None:
+                        has_type:bool=False,
+                        has_worldcloud=False)->None:
 
     # Define file name
 
@@ -44,6 +48,7 @@ def create_report_sheet(source_data:pd.DataFrame,
 
     role=processing_function(
                 df=ies_data,
+                agg_kwargs=agg_kwargs,
                 date_agg_freq='M',
                 date_col=Schema.DATE,
                 agg_col=Schema.ROLE,
@@ -65,6 +70,7 @@ def create_report_sheet(source_data:pd.DataFrame,
 
     general=processing_function(
                 df=ies_data,
+                agg_kwargs=agg_kwargs,
                 date_agg_freq='M',
                 date_col=Schema.DATE,
                 agg_col=Schema.IES,
@@ -81,6 +87,7 @@ def create_report_sheet(source_data:pd.DataFrame,
 
     major=processing_function(
                 df=ies_data,
+                agg_kwargs=agg_kwargs,
                 date_col=Schema.DATE,
                 date_agg_freq='A-nov',
                 agg_col=Schema.MAJOR,
@@ -102,6 +109,7 @@ def create_report_sheet(source_data:pd.DataFrame,
 
     anual=processing_function(
                 df=ies_data,
+                agg_kwargs=agg_kwargs,
                 date_agg_freq='A-nov',
                 date_col=Schema.DATE,
                 agg_col=Schema.IES,
@@ -121,12 +129,13 @@ def create_report_sheet(source_data:pd.DataFrame,
     if has_type:
          type=processing_function(
                 df=ies_data,
+                agg_kwargs=agg_kwargs,
                 date_agg_freq='A-nov',
                 date_col=Schema.DATE,
                 agg_col=Schema.CTYPE,
                 agg_value=agg_value)
                
-    # create bar plot and insert it in sheet 
+       # create bar plot and insert it in sheet 
 
          save_bar_plot(df=type,
                         img_name=BAR_IMG_NAME,
@@ -137,6 +146,17 @@ def create_report_sheet(source_data:pd.DataFrame,
                 anchor_cell='Y3',
                 worksheet_idx=worksheet_idx)
 
+    if has_worldcloud:
+        collection_words=collection_of_search_terms_str(df_search=ies_data,
+                                                        term_col=Schema.SEARCH_TERM)
+         
+        save_world_cloud(img_name=WC_IMG_NAME,
+                       collection_words_str=collection_words)
+
+        insert_img(xlsx_file=XLSX_FILE,
+                img_loc=WC_IMG_NAME,
+                anchor_cell='Y45',
+                worksheet_idx=worksheet_idx)
 
     # remove gridlines
 

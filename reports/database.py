@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2 
 from dataclasses import dataclass
 from queries import Template,Query
+import os
 
 
 class NotFoundError(Exception):
@@ -22,14 +23,14 @@ class Host:
 
 @dataclass
 class BkData:
-    user:str="booklickdb"
-    password:str="b00kl1ck2017"
+    user:str=os.getenv('BK_DB_USER')
+    password:str=os.getenv('BK_DB_PASS')
     host:Host=Host.LOCAL
     port:str = "5432"
     database:DbName=DbName.PROFILE
     query:Query=Query(Template.PROFILE,"'areandina'").compile_query
     
-
+    
     @property
     def fetch_data(self)->pd.DataFrame:
         connection = psycopg2.connect(user= self.user,

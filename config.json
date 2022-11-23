@@ -4,6 +4,7 @@
     "LINE_IMG_NAME":"temp/line.png",
     "BAR_IMG_NAME":"temp/bar.png",
     "HEAT_IMG_NAME":"temp/heat.png",
+    "WC_IMG_NAME":"temp/wc.png",
     "LOGO":"resources/logo.png",
     "IES":["areandina","unisinu","unitolima","sena","cuc","ufps","unitropico",
           "uniguajira","luisamigo","juanncorpas","unicolmayor","itm","ibero","unimilitar",

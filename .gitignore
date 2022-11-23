@@ -57,6 +57,9 @@ cmake-build-*/
 # File-based project format
 *.iws
 
+# jupyter notebooks
+*.ipynb
+
 # IntelliJ
 out/
 

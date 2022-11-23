@@ -7,6 +7,7 @@ class ReportsConfig:
     LINE_IMG_NAME:str 
     BAR_IMG_NAME:str
     HEAT_IMG_NAME:str
+    WC_IMG_NAME:str
     LOGO:str
     IES:field(default_factory=list)
     PROXY_IES:field(default_factory=list)

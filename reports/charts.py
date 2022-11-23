@@ -1,6 +1,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib
+from wordcloud import WordCloud
 from config import read_config
 
 config = read_config("./config.json")
@@ -47,3 +48,19 @@ def save_heatmap(df,img_name:str,fact:str,dim:str)->None:
     plt.yticks(rotation=0)
     fig.savefig(img_name,dpi=600,bbox_inches='tight') 
     plt.close(fig)
+
+
+def save_world_cloud(img_name:str,collection_words_str)->None:
+    wordcloud = WordCloud(
+                background_color ='black',
+                max_words=100,
+                min_font_size = 5).generate(collection_words_str)
+ 
+    # plot the WordCloud image                      
+    fig=plt.figure(figsize = (15, 10), facecolor = None)
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.tight_layout(pad = 0)
+    fig.savefig(img_name,dpi=600) 
+    plt.close(fig)
+    
