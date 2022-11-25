@@ -1,11 +1,10 @@
 import os
-from anyio import connect_tcp
 import pandas as pd
 from config import read_config
 from fields_schema import Schema
 from kwargs_schema import Kwargs
 from nlp import collection_of_search_terms_str
-from processing_functions import get_key_teachers, tweak_profile
+from processing_functions import get_key_teachers
 from excel_manipulation import excel_write
 from charts import save_bar_plot, save_line_plot, save_world_cloud
 from excel_manipulation import insert_img, remove_gridlines
@@ -13,7 +12,6 @@ from excel_manipulation import excel_append
 
 config = read_config("./config.json")
 BASE_DIR=dir_path = os.getcwd()
-
 IMG_NAME= config.LINE_IMG_NAME
 BAR_IMG_NAME= config.BAR_IMG_NAME
 HEAT_IMG_NAME=config.HEAT_IMG_NAME
@@ -29,7 +27,6 @@ def create_report_sheet(source_data:pd.DataFrame,
                         fact:str,
                         sheet_name:str,
                         worksheet_idx:int,
-                        agg_value:Schema,
                         new_workbook:bool=True,
                         has_type:bool=False,
                         has_worldcloud=False)->None:
@@ -52,7 +49,6 @@ def create_report_sheet(source_data:pd.DataFrame,
                 date_agg_freq='M',
                 date_col=Schema.DATE,
                 agg_col=Schema.ROLE,
-                agg_value=agg_value,
                 )
 
 
@@ -73,8 +69,7 @@ def create_report_sheet(source_data:pd.DataFrame,
                 agg_kwargs=agg_kwargs,
                 date_agg_freq='M',
                 date_col=Schema.DATE,
-                agg_col=Schema.IES,
-                agg_value=agg_value)
+                agg_col=Schema.IES)
 
     save_line_plot(df=general,img_name=IMG_NAME,fact=fact)
 
@@ -90,8 +85,7 @@ def create_report_sheet(source_data:pd.DataFrame,
                 agg_kwargs=agg_kwargs,
                 date_col=Schema.DATE,
                 date_agg_freq='A-nov',
-                agg_col=Schema.MAJOR,
-                agg_value=agg_value).iloc[-1].sort_values(ascending=False).to_frame()
+                agg_col=Schema.MAJOR).iloc[-1].sort_values(ascending=False).to_frame()
 
     # create bar plot and insert it in sheet 
 
@@ -112,8 +106,7 @@ def create_report_sheet(source_data:pd.DataFrame,
                 agg_kwargs=agg_kwargs,
                 date_agg_freq='A-nov',
                 date_col=Schema.DATE,
-                agg_col=Schema.IES,
-               agg_value=agg_value)
+                agg_col=Schema.IES)
                
     # create bar plot and insert it in sheet 
 
@@ -132,8 +125,7 @@ def create_report_sheet(source_data:pd.DataFrame,
                 agg_kwargs=agg_kwargs,
                 date_agg_freq='A-nov',
                 date_col=Schema.DATE,
-                agg_col=Schema.CTYPE,
-                agg_value=agg_value)
+                agg_col=Schema.CTYPE)
                
        # create bar plot and insert it in sheet 
 

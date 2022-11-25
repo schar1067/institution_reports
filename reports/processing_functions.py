@@ -31,101 +31,15 @@ def subset_data_by_date(df,date_col:Schema,date1:str,date2:str):
                 .dropna(subset=date_col) 
                 .loc[date1:date2,:])
 
-def tweak(df,agg_kwargs:Kwargs,date_col:Schema, agg_col:Schema,date_agg_freq:str='M',agg_value:Schema=None):
-  
+def tweak(df,agg_kwargs:Kwargs,date_col:Schema, agg_col:Schema,date_agg_freq:str='M'):
+    top_creator=df.correo.value_counts().index[:10].tolist()
     return (df
         .assign(fecha=lambda _df:pd.to_datetime(_df[date_col],infer_datetime_format=True),
                 rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'otro'),
-                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn))
+                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn),
+                top_creador=lambda _df:_df.correo.where(_df.correo.isin(top_creator),'Otro').str.split('@',expand=True)[0])
         .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
         .agg(agg_kwargs).reset_index()
-        .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
-        .pivot_table(index=[date_col,'Fecha'],
-                     columns=[agg_col])
-        .fillna(0).astype('int64')
-        .droplevel(0)
-        .pipe(elim_top_col_hierarchy)          
-        ) 
-
-
-def tweak_profile(df,date_col:Schema, agg_col:Schema,date_agg_freq:str='M',agg_value:Schema=None):
-  
-    return (df
-        .assign(fecha=lambda _df:pd.to_datetime(_df[date_col],infer_datetime_format=True),
-                rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'Otro'),
-                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn))
-        .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
-        .agg(registros=('correo','count')).reset_index()
-        .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
-        .pivot_table(index=[date_col,'Fecha'],
-                     columns=[agg_col])
-        .fillna(0).astype('int64')
-        .droplevel(0)
-        .pipe(elim_top_col_hierarchy) 
-        )
-
-
-def tweak_content(df,date_col:Schema, agg_col:Schema,agg_value:Schema,date_agg_freq:str='M'):
-    """returns a pivot table with date as index  """
-    top15creators=df.correo.value_counts().index[:15].tolist()
-    return (df
-        .assign(fecha=pd.to_datetime(df[date_col],infer_datetime_format=True),
-                 redirecciones=lambda _df:_df.redirecciones.fillna(0).astype('int64'),
-                 rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'Otro'),
-                 programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn),
-                 correo=lambda _df:_df.correo.where(_df.correo.isin(top15creators),'Otro').str.split('@',expand=True)[0])
-        .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
-        .agg(contenido_creado=('titulo','count'),
-             redirecciones=('redirecciones','sum')).reset_index() 
-        .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
-        .pivot_table(index=[date_col,'Fecha'],
-                     columns=[agg_col],
-                     values=[agg_value])
-        .fillna(0).astype('int64').droplevel(0)
-        .pipe(elim_top_col_hierarchy)
-        )    
-                
-
-def tweak_redirect(df,date_col:Schema, agg_col:Schema,date_agg_freq:str='M',agg_value:Schema=None):
-  
-    return (df
-        .assign(fecha=lambda _df:pd.to_datetime(_df[date_col],infer_datetime_format=True),
-                rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'otro'),
-                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn))
-        .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
-        .agg(usuarios_activos=('correo','nunique')).reset_index()
-        .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
-        .pivot_table(index=[date_col,'Fecha'],
-                     columns=[agg_col])
-        .fillna(0).astype('int64')
-        .droplevel(0)
-        .pipe(elim_top_col_hierarchy)          
-        ) 
-
-def tweak_proxy(df,date_col:Schema, agg_col:Schema,date_agg_freq:str='M',agg_value:Schema=None):
-  
-    return (df
-        .assign(fecha=lambda _df:pd.to_datetime(_df[date_col],infer_datetime_format=True),
-                rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'otro'),
-                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn))
-        .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
-        .agg(sesiones=('sesión','nunique')).reset_index()
-        .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
-        .pivot_table(index=[date_col,'Fecha'],
-                     columns=[agg_col])
-        .fillna(0).astype('int64')
-        .droplevel(0)
-        .pipe(elim_top_col_hierarchy)          
-        ) 
-
-def tweak_search(df,date_col:Schema, agg_col:Schema,date_agg_freq:str='M',agg_value:Schema=None):
-  
-    return (df
-        .assign(fecha=lambda _df:pd.to_datetime(_df[date_col],infer_datetime_format=True),
-                rol=lambda _df:_df.rol.where(_df.rol.isin(['student','teacher','admin']),'otro'),
-                programa=lambda _df:_df.programa.str.upper().astype('category').pipe(generalize_topn))
-        .groupby([pd.Grouper(key=date_col,freq=date_agg_freq),agg_col])
-        .agg(sesiones=('id','count')).reset_index()
         .assign(Fecha=lambda _df:_df[date_col].dt.strftime('%b-%Y'))
         .pivot_table(index=[date_col,'Fecha'],
                      columns=[agg_col])
